@@ -6,29 +6,41 @@ description: >
   Learn how to build your applications for Android
 ---
 
-
 ## Building Applications
 
-Building .apk files from Qt Applications requires a cross-compiling toolchain, which is hard to setup. For these reasons, there is a ready-to-use Docker Container for building KDE applications. While we recommend using this container, it is possible to build applications on the host environment by setting up a cross-compiling toolchain.
+Building .apk files from Qt Applications requires a cross-compiling toolchain, which is hard to setup. To simplify this, there is a ready-to-use Docker container for building KDE applications.
 
-The container contains Qt binaries for arm and arm64, the KDE frameworks and most other dependencies are built as part of the application builds.
+This documentation only applies to applications that have a craft blueprint in the craft-blueprints-kde repository. If the application you want does not have such a blueprint yet, have a look at [TODO](TODO).
 
 The container can be started with
-
 ```bash
 docker run -ti --rm kdeorg/android-sdk bash
 ```
 
-An application can be built by executing
-
+In the container, Craft needs to be set up:
 ```bash
-docker run -ti --rm -v /tmp:/output kdeorg/android-sdk /opt/helpers/build-generic okular
+git clone https://invent.kde.org/packaging/craftmaster
+git clone https://invent.kde.org/sysadmin/binary-factory-tooling
+python3 craftmaster/CraftMaster.py --config binary-factory-tooling/craft/configs/master/CraftBinaryCache.ini --target android-arm64-clang -c -i craft
 ```
 
-The generated apks will be available in the ```/tmp``` directory of the host system.
-
-When building a project with local patches, the ```src``` directory needs to be added as a volumn to the ```docker run``` command, e.g.:
-
+Applications can then be built using
 ```bash
-docker run -ti --rm -v $HOME/kde/src:/home/user/src -v /tmp:/output kdeorg/android-sdk /opt/helpers/build-generic okular
+python3 craftmaster/CraftMaster.py --config binary-factory-tooling/craft/configs/master/CraftBinaryCache.ini --target android-arm64-clang -c -i <application>
 ```
+
+And packaged as an apk with
+```bash
+python3 craftmaster/CraftMaster.py --config binary-factory-tooling/craft/configs/master/CraftBinaryCache.ini --target android-arm64-clang -c --package <application>
+```
+
+{{< alert color="info" title="Note" >}}
+If you want to build the apk for other target architectures (arm, x86, x86_64), adjust the architecture in the target parameter
+{{< /alert >}}
+
+When building a project with local patches, the ```src``` directory needs to be added as a volume to the ```docker run``` command, e.g.:
+```bash
+docker run -ti --rm -v $HOME/kde/src:/home/user/src kdeorg/android-sdk bash
+```
+
+Inside the container, the blueprints can be found at `blueprints/craft-blueprints-kde` and can be edited there to quickly test changes.

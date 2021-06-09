@@ -35,7 +35,7 @@ python3 craftmaster/CraftMaster.py --config binary-factory-tooling/craft/configs
 ```
 
 {{< alert color="info" title="Note" >}}
-If you want to build the apk for other target architectures (arm, x86, x86_64), adjust the architecture in the target parameter
+If you want to build the apk for other target architectures (arm, arm64, x86, x86_64), adjust the architecture in the target parameter
 {{< /alert >}}
 
 When building a project with local patches, the ```src``` directory needs to be added as a volume to the ```docker run``` command, e.g.:
